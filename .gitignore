@@ -1,0 +1,48 @@
+# Dependency directories
+node_modules/
+frontend/node_modules/
+backend/venv/
+backend/.venv/
+venv/
+.venv/
+env/
+
+# Environment files
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pye
+*.pyd
+.pytest_cache/
+backend/.pytest_cache/
+
+# Frontend Build output
+frontend/dist/
+frontend/dist-ssr/
+dist/
+
+# Application Specific Ignored Directories
+backend/audio/*.mp3
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Editor Files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Miscellaneous
+test.txt
