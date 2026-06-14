@@ -11,4 +11,3 @@ edge-tts
 pytest
 pytest-asyncio
 httpx
-google-genai

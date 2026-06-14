@@ -62,12 +62,16 @@ _controller = ConvertController()
     summary="Convert a file to audio",
     response_description="Extracted text and the generated audio filename.",
 )
-async def convert_file(file: UploadFile, voice: str = Form("en-US-AriaNeural")) -> ConvertResponse:
+async def convert_file(
+    file: UploadFile,
+    voice: str = Form("en-US-AriaNeural"),
+    mode: str = Form("lecture")
+) -> ConvertResponse:
     """
     Upload a `.pptx`, `.pdf`, `.docx`, or `.txt` file.
     Returns the extracted text and a filename for the generated MP3.
     """
-    return await _controller.convert_file(file, voice)
+    return await _controller.convert_file(file, voice, mode)
 
 
 @router.get(

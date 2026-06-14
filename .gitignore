@@ -1,35 +1,26 @@
 # Dependency directories
 node_modules/
-frontend/node_modules/
-backend/venv/
-backend/.venv/
 venv/
 .venv/
 env/
 
-# Environment files
+# Environment files (never commit secrets)
 .env
 .env.*
 !.env.example
-backend/.env
-backend/.env.*
-!backend/.env.example
 
 # Python Cache
 __pycache__/
 *.pyc
 *.pyo
-*.pye
 *.pyd
 .pytest_cache/
-backend/.pytest_cache/
 
 # Frontend Build output
-frontend/dist/
-frontend/dist-ssr/
 dist/
+dist-ssr/
 
-# Application Specific Ignored Directories
+# Generated audio files
 backend/audio/*.mp3
 
 # OS Files

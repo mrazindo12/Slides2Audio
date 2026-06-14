@@ -6,7 +6,10 @@ from docx import Document
 
 def extract_text(file_bytes: bytes, extension: str) -> str:
     if extension == ".txt":
-        return file_bytes.decode("utf-8")
+        try:
+            return file_bytes.decode("utf-8")
+        except UnicodeDecodeError:
+            return file_bytes.decode("latin-1")
 
     elif extension == ".pdf":
         reader = PdfReader(io.BytesIO(file_bytes))

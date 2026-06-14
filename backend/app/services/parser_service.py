@@ -1,5 +1,4 @@
-import io
-from typing import Optional
+
 from ..parse import extract_text as parse_text
 from ..exceptions import (
     UnsupportedFileTypeError,

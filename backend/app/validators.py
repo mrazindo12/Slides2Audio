@@ -6,7 +6,7 @@ imported from there. This module is reserved for any additional
 validation schemas.
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class ConvertRequest(BaseModel):
