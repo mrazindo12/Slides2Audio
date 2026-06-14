@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { 
   UploadCloud, 
   FileText, 
@@ -74,6 +74,7 @@ function App() {
   
   const audioRef = useRef(null);
   const fileInputRef = useRef(null);
+  const transcriptContentRef = useRef(null);
 
   // Load history on mount
   useEffect(() => {
@@ -93,6 +94,77 @@ function App() {
       audioRef.current.volume = isMuted ? 0 : volume;
     }
   }, [volume, isMuted]);
+
+  // Parse discussion turns from text (memoized to avoid re-parsing on every render)
+  const parsedTurns = useMemo(() => {
+    if (!text) return [];
+    
+    const speakerRegex = /^(?:\*\*|\*|__|_)?\s*(HOST|EXPERT|STUDENT)\s*(?:\*\*|\*|__|_)?\s*:\s*(.*)$/i;
+    const lines = text.split('\n');
+    const turns = [];
+    let currentSpeaker = null;
+    let currentContent = [];
+
+    for (let line of lines) {
+      line = line.trim();
+      if (!line) continue;
+      
+      const match = line.match(speakerRegex);
+      if (match) {
+        if (currentSpeaker && currentContent.length > 0) {
+          turns.push({ speaker: currentSpeaker, content: currentContent.join(' ') });
+        }
+        currentSpeaker = match[1].toUpperCase();
+        currentContent = [match[2].trim()];
+      } else {
+        if (currentSpeaker) {
+          currentContent.push(line);
+        } else {
+          currentSpeaker = "HOST";
+          currentContent.push(line);
+        }
+      }
+    }
+
+    if (currentSpeaker && currentContent.length > 0) {
+      turns.push({ speaker: currentSpeaker, content: currentContent.join(' ') });
+    }
+
+    return turns;
+  }, [text]);
+
+  const isDiscussion = parsedTurns.length >= 2 && parsedTurns.some(t => t.speaker === "EXPERT" || t.speaker === "STUDENT");
+
+  // Estimate which turn is currently being spoken based on playback position
+  const activeTurnIndex = useMemo(() => {
+    if (!isDiscussion || parsedTurns.length === 0 || !duration || duration === 0) return -1;
+    if (!isPlaying && currentTime === 0) return -1;
+
+    const totalChars = parsedTurns.reduce((sum, t) => sum + t.content.length, 0);
+    if (totalChars === 0) return -1;
+    
+    let cumulative = 0;
+    for (let i = 0; i < parsedTurns.length; i++) {
+      const turnStart = (cumulative / totalChars) * duration;
+      cumulative += parsedTurns[i].content.length;
+      const turnEnd = (cumulative / totalChars) * duration;
+      if (currentTime >= turnStart && currentTime < turnEnd) {
+        return i;
+      }
+    }
+
+    return parsedTurns.length - 1;
+  }, [currentTime, duration, parsedTurns, isDiscussion, isPlaying]);
+
+  // Auto-scroll to active turn during playback
+  useEffect(() => {
+    if (activeTurnIndex < 0 || !transcriptContentRef.current) return;
+    
+    const activeEl = transcriptContentRef.current.querySelector(`[data-turn-index="${activeTurnIndex}"]`);
+    if (activeEl) {
+      activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [activeTurnIndex]);
 
   // Audio HTML Listeners hooks
   const handleTimeUpdate = () => {
@@ -314,46 +386,15 @@ function App() {
   const renderTranscriptContent = () => {
     if (!text) return null;
 
-    // Parse script into HOST, EXPERT, STUDENT turns using robust regex (handling optional markdown formatting)
-    const speakerRegex = /^(?:\*\*|\*|__|_)?\s*(HOST|EXPERT|STUDENT)\s*(?:\*\*|\*|__|_)?\s*:\s*(.*)$/i;
-    const lines = text.split('\n');
-    const turns = [];
-    let currentSpeaker = null;
-    let currentContent = [];
-
-    for (let line of lines) {
-      line = line.trim();
-      if (!line) continue;
-      
-      const match = line.match(speakerRegex);
-
-      if (match) {
-        if (currentSpeaker && currentContent.length > 0) {
-          turns.push({ speaker: currentSpeaker, content: currentContent.join(' ') });
-        }
-        currentSpeaker = match[1].toUpperCase();
-        currentContent = [match[2].trim()];
-      } else {
-        if (currentSpeaker) {
-          currentContent.push(line);
-        } else {
-          currentSpeaker = "HOST";
-          currentContent.push(line);
-        }
-      }
-    }
-
-    if (currentSpeaker && currentContent.length > 0) {
-      turns.push({ speaker: currentSpeaker, content: currentContent.join(' ') });
-    }
-
-    const isDiscussion = turns.length >= 2 && turns.some(t => t.speaker === "EXPERT" || t.speaker === "STUDENT");
-
     if (isDiscussion) {
       return (
-        <div className="discussion-chat">
-          {turns.map((turn, idx) => (
-            <div key={idx} className={`chat-turn ${turn.speaker.toLowerCase()}`}>
+        <div className={`discussion-chat${isPlaying && activeTurnIndex >= 0 ? ' auto-follow' : ''}`}>
+          {parsedTurns.map((turn, idx) => (
+            <div 
+              key={idx} 
+              className={`chat-turn ${turn.speaker.toLowerCase()}${idx === activeTurnIndex ? ' active-turn' : ''}`}
+              data-turn-index={idx}
+            >
               <div className="chat-avatar-badge">
                 <span className="chat-icon">
                   {turn.speaker === 'HOST' ? '🎙️' : turn.speaker === 'EXPERT' ? '🔬' : '🙋'}
@@ -705,7 +746,7 @@ function App() {
                         {copied ? 'Copied' : 'Copy Text'}
                       </button>
                     </div>
-                     <div className="transcript-content">
+                     <div className="transcript-content" ref={transcriptContentRef}>
                        {renderTranscriptContent()}
                      </div>
                   </div>

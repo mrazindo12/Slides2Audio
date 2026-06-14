@@ -989,6 +989,7 @@
   max-height: 380px;
   overflow-y: auto;
   padding-right: 1.25rem;
+  scroll-behavior: smooth;
 }
 
 /* Plain Transcript Formatting */
@@ -1327,4 +1328,69 @@
   background: rgba(217, 70, 239, 0.04);
   border-color: rgba(217, 70, 239, 0.12);
   border-top-left-radius: 4px;
+}
+
+/* ====== Auto-Follow Active Turn (Podcast Mode) ====== */
+.discussion-chat .chat-turn {
+  transition: opacity 0.5s ease, transform 0.35s ease;
+}
+
+/* When playback is active, dim all turns except the current one */
+.discussion-chat.auto-follow .chat-turn {
+  opacity: 0.4;
+}
+
+.discussion-chat.auto-follow .chat-turn.active-turn {
+  opacity: 1;
+  transform: scale(1.015);
+}
+
+/* Glow effect on the active bubble */
+.discussion-chat.auto-follow .chat-turn.active-turn .chat-bubble {
+  box-shadow: 0 0 24px rgba(139, 92, 246, 0.12), 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.discussion-chat.auto-follow .chat-turn.host.active-turn .chat-bubble {
+  border-color: rgba(139, 92, 246, 0.45);
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.discussion-chat.auto-follow .chat-turn.expert.active-turn .chat-bubble {
+  border-color: rgba(6, 182, 212, 0.45);
+  background: rgba(6, 182, 212, 0.1);
+}
+
+.discussion-chat.auto-follow .chat-turn.student.active-turn .chat-bubble {
+  border-color: rgba(217, 70, 239, 0.4);
+  background: rgba(217, 70, 239, 0.09);
+}
+
+/* Speaking pulse indicator dot next to speaker name */
+.discussion-chat.auto-follow .chat-turn.active-turn .chat-avatar-badge::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-left: 6px;
+  animation: speaking-dot 1.2s infinite ease-in-out;
+}
+
+.discussion-chat.auto-follow .chat-turn.host.active-turn .chat-avatar-badge::after {
+  background: #c4b5fd;
+  box-shadow: 0 0 8px rgba(196, 181, 253, 0.5);
+}
+
+.discussion-chat.auto-follow .chat-turn.expert.active-turn .chat-avatar-badge::after {
+  background: #22d3ee;
+  box-shadow: 0 0 8px rgba(34, 211, 238, 0.5);
+}
+
+.discussion-chat.auto-follow .chat-turn.student.active-turn .chat-avatar-badge::after {
+  background: #f472b6;
+  box-shadow: 0 0 8px rgba(244, 114, 182, 0.5);
+}
+
+@keyframes speaking-dot {
+  0%, 100% { opacity: 0.3; transform: scale(0.7); }
+  50% { opacity: 1; transform: scale(1.3); }
 }

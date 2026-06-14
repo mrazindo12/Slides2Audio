@@ -1,77 +1,105 @@
-# Slide2Audio
+<p align="center">
+  <img src="frontend/public/logo-512.png" alt="Slide2Audio Logo" width="120" height="120" style="border-radius: 24px;" />
+</p>
 
-Convert presentations, PDFs, Word documents, and text files into spoken MP3 audio — powered by AI.
+<h1 align="center">Slide2Audio</h1>
 
-Slide2Audio extracts text from your uploaded files, optionally rewrites it into a natural lecture script using Google Gemini, then synthesizes high-quality speech with Microsoft Edge TTS.
+<p align="center">
+  <strong>Transform documents and presentations into premium spoken audio with AI</strong>
+</p>
 
----
-
-## How It Works
-
-```
-Upload File → Extract Text → (Optional) AI Lecture Script → Text-to-Speech → MP3 Audio
-```
-
-1. **Upload** a `.pptx`, `.pdf`, `.docx`, or `.txt` file
-2. **Text extraction** pulls readable content from every slide, page, or paragraph
-3. **AI enhancement** (optional) — Gemini rewrites the raw text into a natural, conversational lecture script
-4. **Speech synthesis** — Edge TTS converts the text into an MP3 with your chosen voice
-5. **Download** or play the generated audio directly in the browser
-
-> If the Gemini API key is missing or the quota is exhausted, the app gracefully falls back to using the raw extracted text — it will always produce audio.
+<p align="center">
+  <img src="https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react" />
+  <img src="https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi" />
+  <img src="https://img.shields.io/badge/Edge_TTS-Neural-ff6f00?style=flat-square" />
+  <img src="https://img.shields.io/badge/PWA-Installable-8B5CF6?style=flat-square&logo=pwa" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" />
+</p>
 
 ---
 
-## Project Structure
+## ✨ What is Slide2Audio?
+
+Slide2Audio is a full-stack web application that converts PDFs, PowerPoint slides, Word documents, and plain text files into high-fidelity spoken audio using AI-powered text processing and Microsoft Edge neural text-to-speech voices.
+
+Upload a file → choose a mode → pick a voice → get an MP3.
+
+### Three Conversion Modes
+
+| Mode | Description |
+|------|-------------|
+| **🎓 AI Lecture** | Rewrites content into a fluid, conversational lecture using an LLM before synthesizing speech |
+| **🎙️ AI Podcast** | Generates a multi-voice discussion between a Host, Expert, and Student — each with a unique neural voice |
+| **📄 Direct Reading** | Reads the exact extracted text verbatim with no AI modifications |
+
+---
+
+## 🎯 Key Features
+
+- **Multi-format support** — `.pdf`, `.pptx`, `.docx`, `.txt`
+- **6 neural voices** — US, UK, and Australian accents (male & female)
+- **Multi-voice podcast mode** — Three distinct speakers with dynamic voice mapping
+- **Auto-scrolling transcript** — Follows playback and highlights the active speaker turn in real-time
+- **Custom glass audio player** — Vinyl disc animation, timeline scrubbing, volume control
+- **Conversion history** — Local library of past conversions with instant playback
+- **PWA installable** — Install as a native-like app on desktop and mobile
+- **Smart LLM fallback** — Cycles through multiple free OpenRouter models with retry logic
+
+---
+
+## 🏗️ Architecture
 
 ```
 Slide2Audio/
-├── backend/                  # Python FastAPI server
-│   ├── app/
-│   │   ├── main.py           # FastAPI app entry point & routes
-│   │   ├── config.py         # Settings (env vars, CORS, paths)
-│   │   ├── parse.py          # Text extraction (PPTX, PDF, DOCX, TXT)
-│   │   ├── exceptions.py     # Custom exception classes & handlers
-│   │   ├── validators.py     # Request/response schemas
-│   │   ├── controllers/      # Request handling logic
-│   │   ├── services/         # Business logic layer
-│   │   │   ├── parser_service.py   # File parsing with validation
-│   │   │   ├── tts_service.py      # Edge TTS audio generation
-│   │   │   └── llm_service.py      # Gemini AI lecture generation
-│   │   ├── models/           # Pydantic response models
-│   │   └── tests/            # Pytest test suite
-│   ├── audio/                # Generated MP3 files (auto-created)
-│   ├── .env                  # Environment variables (API keys)
-│   └── requirements.txt      # Python dependencies
+├── frontend/               # React 19 + Vite SPA
+│   ├── public/
+│   │   ├── manifest.json   # PWA manifest
+│   │   ├── sw.js           # Service worker
+│   │   ├── logo-*.png      # App icons (32, 64, 192, 512)
+│   │   └── apple-touch-icon.png
+│   ├── src/
+│   │   ├── App.jsx         # Main application component
+│   │   ├── App.css         # Full design system
+│   │   └── main.jsx        # Entry point
+│   ├── index.html          # PWA-enabled HTML with meta tags
+│   └── vite.config.js      # Dev proxy to backend
 │
-└── frontend/                 # React + Vite UI
-    ├── src/
-    │   ├── App.jsx           # Main application component
-    │   ├── App.css           # Component styles
-    │   ├── index.css          # Global styles & design system
-    │   └── main.jsx          # React entry point
-    ├── index.html            # HTML shell
-    ├── vite.config.js        # Vite config with API proxy
-    └── package.json          # Node dependencies
+├── backend/                # FastAPI Python API
+│   ├── app/
+│   │   ├── main.py         # FastAPI app + routes
+│   │   ├── config.py       # Pydantic settings
+│   │   ├── parse.py        # Text extraction (PDF, PPTX, DOCX, TXT)
+│   │   ├── exceptions.py   # Custom error handling
+│   │   ├── validators.py   # Request schemas
+│   │   ├── controllers/
+│   │   │   └── convert_controller.py
+│   │   ├── services/
+│   │   │   ├── llm_service.py     # OpenRouter LLM (free models)
+│   │   │   ├── tts_service.py     # Edge TTS (single + multi-voice)
+│   │   │   └── parser_service.py  # Text extraction service
+│   │   └── models/
+│   │       └── convert.py         # Response models
+│   ├── requirements.txt
+│   └── .env.example
+│
+└── README.md
 ```
 
 ---
 
-## Prerequisites
+## 🚀 Quick Start
+
+### Prerequisites
 
 - **Python 3.10+**
 - **Node.js 18+**
-- **Gemini API Key** (optional — get one free at [aistudio.google.com](https://aistudio.google.com))
+- **OpenRouter API key** (free — [get one here](https://openrouter.ai/keys))
 
----
-
-## Setup & Installation
-
-### 1. Clone the repository
+### 1. Clone the repo
 
 ```bash
-git clone <your-repo-url>
-cd Slide2Audio
+git clone https://github.com/mrazindo12/Slides2Audio.git
+cd Slides2Audio
 ```
 
 ### 2. Backend setup
@@ -79,138 +107,132 @@ cd Slide2Audio
 ```bash
 cd backend
 
-# Create and activate a virtual environment (recommended)
+# Create virtual environment
 python -m venv venv
-venv\Scripts\activate        # Windows
-# source venv/bin/activate   # macOS/Linux
+# Windows:
+venv\Scripts\activate
+# macOS/Linux:
+source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Configure environment
+cp .env.example .env
+# Edit .env and add your OpenRouter API key:
+# OPENROUTER_API_KEY=sk-or-v1-your-key-here
+
+# Start the API server
+uvicorn app.main:app --reload --port 8000
 ```
 
-### 3. Configure environment variables
-
-Create or edit `backend/.env`:
-
-```env
-GEMINI_API_KEY=your_gemini_api_key_here
-```
-
-> Leave this empty or remove the line to skip the AI lecture generation step entirely. The app will still work using raw extracted text.
-
-### 4. Frontend setup
+### 3. Frontend setup
 
 ```bash
 cd frontend
+
+# Install dependencies
 npm install
-```
 
----
-
-## Running the App
-
-You need **two terminals** — one for the backend, one for the frontend.
-
-**Terminal 1 — Backend:**
-
-```bash
-cd backend
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
-```
-
-**Terminal 2 — Frontend:**
-
-```bash
-cd frontend
+# Start dev server (proxies API to :8000)
 npm run dev
 ```
 
-Open the URL shown in the terminal (typically `http://localhost:5173`).
+Open **http://localhost:5173** in your browser.
 
 ---
 
-## API Reference
+## ⚙️ Environment Variables
 
-### `POST /convert`
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `OPENROUTER_API_KEY` | Yes | Free API key from [OpenRouter](https://openrouter.ai/keys). Powers the AI Lecture and Podcast modes. |
 
-Upload a file for conversion.
-
-| Parameter | Type       | Description                          |
-|-----------|------------|--------------------------------------|
-| `file`    | `file`     | The document to convert (required)   |
-| `voice`   | `string`   | Edge TTS voice ID (default: `en-US-AriaNeural`) |
-
-**Response:**
-
-```json
-{
-  "text_content": "The extracted or AI-generated lecture text...",
-  "audio_filename": "3fa85f64-5717-4562-b3fc-2c963f66afa6.mp3"
-}
-```
-
-### `GET /audio/{filename}`
-
-Stream or download a generated MP3 file.
+> **Note:** Without an API key, the app still works — AI modes will fall back to reading the raw extracted text.
 
 ---
 
-## Available Voices
+## 🤖 LLM Model Fallback Chain
 
-| Voice ID                | Name                |
-|-------------------------|---------------------|
-| `en-US-AriaNeural`      | Aria (Female, US)   |
-| `en-US-GuyNeural`       | Guy (Male, US)      |
-| `en-GB-SoniaNeural`     | Sonia (Female, UK)  |
-| `en-GB-RyanNeural`      | Ryan (Male, UK)     |
-| `en-AU-NatashaNeural`   | Natasha (Female, AU)|
-| `en-AU-WilliamNeural`   | William (Male, AU)  |
+The app cycles through these free OpenRouter models in order, with automatic retry on rate limits:
+
+1. `google/gemma-4-31b-it:free`
+2. `meta-llama/llama-3.3-70b-instruct:free`
+3. `qwen/qwen3-next-80b-a3b-instruct:free`
+4. `nousresearch/hermes-3-llama-3.1-405b:free`
+5. `google/gemma-3-27b-it:free`
 
 ---
 
-## Running Tests
+## 🎤 Voice Options
+
+| Voice | Accent | Gender |
+|-------|--------|--------|
+| Aria | 🇺🇸 US | Female |
+| Guy | 🇺🇸 US | Male |
+| Sonia | 🇬🇧 UK | Female |
+| Ryan | 🇬🇧 UK | Male |
+| Natasha | 🇦🇺 AU | Female |
+| William | 🇦🇺 AU | Male |
+
+In **Podcast mode**, the selected voice becomes the Expert, and Host/Student are automatically assigned complementary voices from different accents.
+
+---
+
+## 📱 PWA Installation
+
+Slide2Audio is a Progressive Web App. When visiting the site:
+
+- **Chrome/Edge**: Click the install icon (⊕) in the address bar
+- **Safari (iOS)**: Tap Share → "Add to Home Screen"
+- **Android**: The browser will show an "Add to Home Screen" banner automatically
+
+---
+
+## 🧪 Running Tests
 
 ```bash
 cd backend
-python -m pytest
+pytest
 ```
 
 ---
 
-## Supported File Types
+## 📦 Production Build
 
-| Format | Extension | What Gets Extracted                     |
-|--------|-----------|------------------------------------------|
-| PowerPoint | `.pptx` | Text from all shapes on every slide  |
-| PDF        | `.pdf`  | Text from every page                 |
-| Word       | `.docx` | Text from every paragraph            |
-| Plain Text | `.txt`  | Full file contents                   |
+```bash
+# Build the frontend
+cd frontend
+npm run build
+# Output is in frontend/dist/
 
----
-
-## Tech Stack
-
-| Layer    | Technology                                                  |
-|----------|-------------------------------------------------------------|
-| Frontend | React 19, Vite 8, Lucide Icons                             |
-| Backend  | Python, FastAPI, Pydantic v2                                |
-| AI       | Google Gemini 2.0 Flash (via `google-genai`)                |
-| TTS      | Microsoft Edge TTS (via `edge-tts`)                         |
-| Parsing  | `python-pptx`, `PyPDF2`, `python-docx`                     |
+# Serve with the backend
+# Configure FastAPI to serve the static dist/ folder
+# or use a reverse proxy (Nginx, Caddy, etc.)
+```
 
 ---
 
-## Troubleshooting
+## 🛠️ Tech Stack
 
-| Problem | Solution |
-|---------|----------|
-| Blank page in browser | Make sure the frontend dev server is running and check the correct port in the terminal output |
-| `RESOURCE_EXHAUSTED` / 429 error | Your Gemini free tier quota is used up. The app will still work — it falls back to raw text. Wait for quota to reset or upgrade your plan |
-| `Audio file not found` | Make sure the backend is running. Generated audio is stored in `backend/audio/` |
-| CORS errors | The backend allows `localhost:5173` and `localhost:5174` by default. Check that ports match |
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 19, Vite 8, Lucide Icons |
+| Styling | Vanilla CSS (glassmorphism, dark theme) |
+| Backend | FastAPI, Pydantic v2, Uvicorn |
+| Text Extraction | PyPDF2, python-pptx, python-docx |
+| TTS Engine | Microsoft Edge TTS (Neural voices) |
+| LLM | OpenRouter API (free-tier models) |
+| PWA | Web App Manifest, Service Worker |
 
 ---
 
-## License
+## 📄 License
 
-MIT
+MIT License — free for personal and commercial use.
+
+---
+
+<p align="center">
+  Built with 🎧 by <a href="https://github.com/mrazindo12">mrazindo12</a>
+</p>
