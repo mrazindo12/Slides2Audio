@@ -11,6 +11,7 @@ from pathlib import Path
 from fastapi import FastAPI, APIRouter, UploadFile, status, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from .controllers import ConvertController
 from .exceptions import AppException, app_exception_handler, generic_exception_handler
@@ -87,3 +88,22 @@ async def get_audio(filename: str) -> FileResponse:
 
 
 app.include_router(router)
+
+# ---------------------------------------------------------------------------
+# Production: serve the built frontend from dist/
+# ---------------------------------------------------------------------------
+
+_dist_dir = _backend_root / "static"
+
+if _dist_dir.is_dir():
+    # Serve static assets (JS, CSS, images, icons, manifest, sw.js)
+    app.mount("/assets", StaticFiles(directory=str(_dist_dir / "assets")), name="static-assets")
+    app.mount("/static-root", StaticFiles(directory=str(_dist_dir)), name="static-root")
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        """SPA catch-all: serve index.html for all non-API paths."""
+        file_path = _dist_dir / full_path
+        if file_path.is_file():
+            return FileResponse(str(file_path))
+        return FileResponse(str(_dist_dir / "index.html"))
